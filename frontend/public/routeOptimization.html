@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Management System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+        html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+        
+        /* Header Style */
+        #header {
+            position: fixed;
+            font-family: 'Poppins', sans-serif;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #1f2937;
+            color: white;
+            text-align: center;
+            padding: 3px;
+            font-size: 24px;
+            z-index: 9999;
+        }
+
+        /* Footer Style */
+        #footer {
+            position: fixed;
+            font-family: 'Poppins', sans-serif;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #1f2937;
+            color: white;
+            text-align: center;
+            padding: 7px 0;
+            font-size: 14px;
+            z-index: 9999;
+        }
+
+        #map { 
+            width: 100%; 
+            height: calc(100vh - 90px); /* Adjust to make space for header and footer */
+            margin-top: 55px; /* Space for the header */
+        }
+
+        #route-panel {
+            position: absolute;
+            font-family: 'Poppins', sans-serif;
+            top: 78px;
+            right: 11px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            width: 280px;
+            z-index: 1000;
+        }
+
+        select, button {
+            width: 100%;
+            padding: 8px;
+            margin-top: 3px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div id="header">
+        <div style="font-size: 25px; font-weight: bold;">Fleet Management System</div>
+        <div style="font-size: 14px; font-weight: lighter;">Optimize and Track Your Fleet Routes</div>
+    </div>
+    
+
+    <!-- Map -->
+    <div id="map"></div>
+
+    <!-- Route Optimization Panel -->
+    <div id="route-panel">
+        <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">Find Best Route</h2>
+        <label>Source Port:</label>
+        <select id="startPort">
+            <option value="">Select Source Port</option>
+        </select>
+        
+        <label>Destination Port:</label>
+        <select id="endPort">
+            <option value="">Select Destination Port</option>
+        </select>
+
+        <button id="findRoute">Find Route</button>
+        <p id="eta" style="margin-top: 12px; font-size: 14px; color: #555;"></p>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer">
+        &copy; 2025 Fleet Management System. All Rights Reserved.
+    </div>
+
+    <script>
+        var map = L.map('map').setView([20, 0], 3); // Adjusted initial zoom level
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap & CARTO',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+
+        var shipIcon = L.icon({
+            iconUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRg5Bhov73Sqgu6XMaRHwyeN72gFO2P9srTqg&s', 
+            iconSize: [30, 22],
+            iconAnchor: [16, 32],
+            popupAnchor: [0, -32]
+        });
+
+        let shipMarker = null;
+        let routeLine = null;
+
+        let ports = [
+            { name: "Shanghai", coords: [31.2304, 121.4737] },
+            { name: "Singapore", coords: [1.3521, 103.8198] },
+            { name: "Rotterdam", coords: [51.9225, 4.47917] },
+            { name: "Los Angeles", coords: [33.7406, -118.2715] },
+            { name: "Dubai", coords: [25.277, 55.3039] },
+            { name: "Busan", coords: [35.1796, 129.0756] },
+            { name: "Tokyo", coords: [35.6528, 139.8395] },
+            { name: "Jebel Ali", coords: [25.0204, 55.0582] },
+            { name: "Mumbai", coords: [18.9476, 72.8405] },
+            { name: "New York", coords: [40.6833, -74.0119] },
+            { name: "Hong Kong", coords: [22.3193, 114.1694] },
+            { name: "Shenzhen", coords: [22.5431, 114.0579] },
+            { name: "Hamburg", coords: [53.5488, 9.9872] },
+            { name: "Antwerp", coords: [51.2194, 4.4025] },
+            { name: "Long Beach", coords: [33.7701, -118.1937] },
+            { name: "Kaohsiung", coords: [22.6163, 120.2673] },
+            { name: "Qingdao", coords: [36.0671, 120.3826] },
+            { name: "Tianjin", coords: [38.8423, 117.2008] },
+            { name: "Port Klang", coords: [2.9621, 101.3913] },
+            { name: "Colombo", coords: [6.9344, 79.8428] },
+            { name: "Sydney", coords: [-33.8688, 151.2093] },
+            { name: "Melbourne", coords: [-37.8136, 144.9631] },
+            { name: "Vancouver", coords: [49.2827, -123.1207] },
+            { name: "Seattle", coords: [47.6062, -122.3321] },
+            { name: "San Francisco", coords: [37.7749, -122.4194] }
+        ];
+
+        let seaRoutes = {
+            "Shanghai": ["Singapore", "Busan", "Hong Kong", "Qingdao", "Tianjin"],
+            "Singapore": ["Shanghai", "Dubai", "Rotterdam", "Port Klang", "Colombo"],
+            "Busan": ["Shanghai", "Tokyo", "Kaohsiung"],
+            "Tokyo": ["Busan", "Los Angeles", "Hong Kong"],
+            "Los Angeles": ["Tokyo", "New York", "Long Beach"],
+            "New York": ["Los Angeles", "Rotterdam", "Hamburg"],
+            "Rotterdam": ["New York", "Singapore", "Hamburg", "Antwerp"],
+            "Dubai": ["Singapore", "Jebel Ali", "Mumbai"],
+            "Jebel Ali": ["Dubai", "Mumbai", "Colombo"],
+            "Mumbai": ["Jebel Ali", "Colombo"],
+            "Hong Kong": ["Shanghai", "Tokyo", "Shenzhen"],
+            "Shenzhen": ["Hong Kong", "Kaohsiung"],
+            "Hamburg": ["Rotterdam", "New York", "Antwerp"],
+            "Antwerp": ["Rotterdam", "Hamburg"],
+            "Long Beach": ["Los Angeles", "Shanghai"],
+            "Kaohsiung": ["Busan", "Shenzhen"],
+            "Qingdao": ["Shanghai", "Tianjin"],
+            "Tianjin": ["Shanghai", "Qingdao"],
+            "Port Klang": ["Singapore", "Colombo"],
+            "Colombo": ["Singapore", "Port Klang", "Mumbai", "Jebel Ali"],
+            "Sydney": ["Melbourne", "Hong Kong"],
+            "Melbourne": ["Sydney", "Singapore"],
+            "Vancouver": ["Seattle", "San Francisco"],
+            "Seattle": ["Vancouver", "Los Angeles"],
+            "San Francisco": ["Vancouver", "Los Angeles"]
+        };
+
+        function populateDropdowns() {
+            let startDropdown = document.getElementById("startPort");
+            let endDropdown = document.getElementById("endPort");
+
+            ports.forEach(port => {
+                let option1 = new Option(port.name, port.name);
+                let option2 = new Option(port.name, port.name);
+                startDropdown.add(option1);
+                endDropdown.add(option2);
+            });
+        }
+
+        populateDropdowns();
+
+        function findSeaRoute(start, end) {
+            let queue = [[start]];
+            let visited = new Set();
+
+            while (queue.length) {
+                let path = queue.shift();
+                let lastPort = path[path.length - 1];
+
+                if (lastPort === end) return path;
+
+                if (!visited.has(lastPort)) {
+                    visited.add(lastPort);
+                    let neighbors = seaRoutes[lastPort] || [];
+
+                    for (let neighbor of neighbors) {
+                        queue.push([...path, neighbor]);
+                    }
+                }
+            }
+            return null;
+        }
+
+        document.getElementById("findRoute").addEventListener("click", function() {
+            let startPort = document.getElementById("startPort").value;
+            let endPort = document.getElementById("endPort").value;
+
+            if (!startPort || !endPort || startPort === endPort) {
+                alert("Please select a valid source and destination.");
+                return;
+            }
+
+            let bestRoute = findSeaRoute(startPort, endPort);
+            if (!bestRoute) {
+                alert("No sea route available.");
+                return;
+            }
+
+            let pathCoords = bestRoute.map(port => {
+                let portData = ports.find(p => p.name === port);
+                return portData ? portData.coords : null;
+            }).filter(Boolean);
+
+            if (routeLine) map.removeLayer(routeLine);
+            routeLine = L.polyline(pathCoords, { color: 'blue', weight: 3 }).addTo(map);
+
+            if (shipMarker) map.removeLayer(shipMarker);
+            shipMarker = L.marker(pathCoords[0], { icon: shipIcon }).addTo(map);
+
+            animateShip(pathCoords);
+            
+            let distance = pathCoords.reduce((total, coord, index) => {
+                if (index === 0) return total;
+                return total + map.distance(pathCoords[index - 1], coord) / 1000;
+            }, 0);
+
+            let speed = 40; 
+            let eta = (distance / speed).toFixed(2);
+            document.getElementById("eta").innerHTML = `<b>ETA:</b> ${eta} hours`;
+        });
+
+        function animateShip(pathCoords) {
+            let index = 0;
+
+            function move() {
+                if (index < pathCoords.length - 1) {
+                    shipMarker.setLatLng(pathCoords[index]);
+                    index++;
+                    setTimeout(move, 1000); 
+                }
+            }
+            move();
+        }
+    </script>
+</body>
+</html>

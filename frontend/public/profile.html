@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Background Styling */
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #ffffff;
+            font-family: 'Poppins', sans-serif;
+            color: black;
+            margin: 0;
+        }
+
+        /* Card Container */
+        .container {
+        position: absolute; /* Allows precise positioning */
+        top: 20px; /* Distance from the top */
+        right: 20px; /* Distance from the right */
+        background: #1a237e;
+        backdrop-filter: blur(10px);
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        width: 350px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color:white
+}
+
+
+        /* Header */
+        h1 {
+            font-size: 26px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        /* User Info */
+        .info {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: 400;
+        }
+
+        .info span {
+            font-weight: 600;
+            color: #f8f9fa;
+        }
+
+        /* Logout Button */
+        button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s ease;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        button:hover {
+            background: #d64040;
+        }
+
+    </style>
+    <script type="module" src="./homepage.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>My Profile</h1>
+        <div class="info">First Name: <span id="loggedUserFName"></span></div>
+        <div class="info">Last Name: <span id="loggedUserLName"></span></div>
+        <div class="info">Email: <span id="loggedUserEmail"></span></div>
+        <button id="logout">Logout</button>
+    </div>
+</body>
+</html>
+
+
+
+

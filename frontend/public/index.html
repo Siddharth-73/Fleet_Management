@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Management System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+        #map { 
+            position: absolute; 
+            top: 2.4rem;  /* Adjusted top to add space below the header */
+            left: 16rem; 
+            right: 0; 
+            bottom: 0; 
+        }
+
+        .typing-demo {
+            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
+            border-right: 3px solid white;
+            /* Cursor */
+            font-family: 'Poppins', sans-serif;
+            width: 0;
+            animation: typing 3s steps(26, end) forwards, blink 0.7s step-end 6;
+        }
+
+        /* Typing effect */
+        @keyframes typing {
+            from {
+                width: 0;
+            }
+
+            to {
+                width: 22ch;
+            }
+
+            /* Adjust width based on text length */
+        }
+
+        /* Cursor blinking effect (only lasts during typing) */
+        @keyframes blink {
+            50% {
+                border-color: transparent;
+            }
+        }
+
+        /* Remove the cursor completely after typing is done */
+        .typing-demo::after {
+            content: "";
+            display: inline-block;
+            width: 0;
+            animation: none;
+        }
+
+        .typing-demo {
+            animation: typing 3s steps(26, end) forwards, blink 0.7s step-end 6, removeCursor 0s 3.5s forwards;
+        }
+
+        @keyframes removeCursor {
+            to {
+                border-right: none;
+            }
+
+            /* Completely removes the cursor */
+        }
+
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <header class="bg-gray-800 text-white p-1 fixed top-0 left-0 right-0 z-50 ">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <img src="fleetX.png" class="ml-3 h-14 w-auto object-contain invert transform scale-110">
+                <span class="text-2xl font-bold">FleetX</span>
+            </div>
+            <div class="absolute left-[57%] transform -translate-x-1/2">
+                <span class="text-2xl font-semibold typing-demo">Fleet Management System</span>
+            </div>
+        </div>
+    </header>
+
+    
+    
+    <!-- Sidebar Navigation -->
+    <nav class="bg-gray-800 text-white w-64 h-screen p-6 fixed left-0 top-0 shadow-lg">
+        <!-- Logo -->
+        <div class="flex items-center space-x-2 mb-2">
+            <img  class="h-16 w-auto object-contain invert transform scale-110">
+            <span class="text-2xl font-bold"></span>
+        </div>
+
+        <!-- Navigation Links -->
+        <ul class="space-y-6">
+            <li><a href="homepage.html" class="block p-3 rounded-lg hover:bg-gray-700">Home</a></li>
+            <li class="group">
+                <a href="profile.html" class="flex justify-between items-center p-3 rounded-lg hover:bg-gray-700">
+                    Profile
+                </a>
+            </li>
+            <li class="group">
+                <a href="#" class="flex justify-between items-center p-3 rounded-lg hover:bg-gray-700">
+                    Services <i class="fas fa-chevron-down group-hover:rotate-180 transition-transform"></i>
+                </a>
+                <ul class="hidden group-hover:block pl-6 space-y-2">
+                    <li><a href="#" class="block p-2 hover:bg-gray-700 rounded">Fuel Efficiency</a></li>
+                    <li><a href="routeOptimization.html" class="block p-2 hover:bg-gray-700 rounded">Route Optimization</a></li>
+                    <li><a href="trackID.html" class="block p-2 hover:bg-gray-700 rounded">Track Ship</a></li>
+                </ul>
+            </li>
+            <li><a href="contact.html" class="block p-3 rounded-lg hover:bg-gray-700">Contact</a></li>
+        </ul>
+
+        <div class="mt-6">
+            <a href="login.html" class="flex items-center p-3 text-lg hover:bg-gray-700 rounded-lg">
+                Logout <i class="fas fa-user-circle ml-3 text-xl"></i>
+            </a>
+        </div>
+    </nav>
+
+
+
+    <!-- Map -->
+    <div id="map">
+
+    <script type="text/javascript">
+        // Map appearance
+        var width="100%";         // width in pixels or percentage
+        var height="700";         // height in pixels
+        var latitude="0.00";      // center latitude (decimal degrees)
+        var longitude="0.00";     // center longitude (decimal degrees)
+        var zoom="3";             // initial zoom (between 3 and 18)
+        var names=false;          // always show ship names (defaults to false)
+    
+        
+    </script>
+    <script type="text/javascript" src="https://www.vesselfinder.com/aismap.js"></script>
+</div>
+<!-- Footer -->
+<footer class="bg-gray-800 text-white text-center py-1.5 fixed bottom-0 left-64 right-0 shadow-md">
+    <p class="text-sm">&copy; 2025 FleetX. All Rights Reserved.</p>
+</footer>
+
+</body>
+</html>
+
+</body>
+</html>
